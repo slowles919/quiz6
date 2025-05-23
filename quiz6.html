@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASEM Mülakat Quiz 6</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f0f0; }
+        #quiz-container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 90%; max-width: 600px; }
+        #question { font-size: 1.2em; margin-bottom: 20px; }
+        #options { display: flex; flex-direction: column; gap: 10px; }
+        button { padding: 10px; font-size: 1em; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        #mnemonic { margin-top: 20px; font-style: italic; color: #555; display: none; }
+        #score { margin-top: 20px; font-weight: bold; }
+        #next-button { margin-top: 20px; display: none; }
+    </style>
+</head>
+<body>
+    <div id="quiz-container">
+        <div id="question"></div>
+        <div id="options"></div>
+        <div id="mnemonic"></div>
+        <div id="score">Skor: 0</div>
+        <button id="next-button" onclick="loadNextQuestion()">Sonraki Soru</button>
+    </div>
+
+    <script>
+        const questions = [
+            { id: 401, question: "Osmanlı Devleti’nde ilk matbaa ne zaman kurulmuştur?", correctAnswer: "1727", incorrectAnswers: ["1831", "1876", "1908"], mnemonic: "1727’de ‘M’atbaa ‘M’ucize, Osmanlı’da!" },
+            { id: 402, question: "Ege Bölgesi’nin en yüksek dağı hangisidir?", correctAnswer: "Bozdağ", incorrectAnswers: ["Aydın Dağı", "Madra Dağı", "Yunt Dağı"], mnemonic: "Ege’de ‘B’ozdağ, ‘Y’ükseklik kralı!" },
+            { id: 403, question: "‘Aç ayı oynamaz’ atasözü neyi ifade eder?", correctAnswer: "Açlık enerjisiz bırakır", incorrectAnswers: ["Ayı her zaman oynar", "Açlık iyidir", "Oynamak gereksizdir"], mnemonic: "Aç ‘A’yı, ‘O’ynamaz!" },
+            { id: 404, question: "Atatürk’ün en sevdiği şair kimdir?", correctAnswer: "Mehmet Akif Ersoy", incorrectAnswers: ["Nazım Hikmet", "Yahya Kemal", "Ahmet Haşim"], mnemonic: "Mehmet ‘M’ükemmel, ‘A’tatürk’ün şairi!" },
+            { id: 405, question: "Türkiye’nin en büyük limanı neresidir?", correctAnswer: "İzmir Limanı", incorrectAnswers: ["İstanbul Limanı", "Mersin Limanı", "İskenderun Limanı"], mnemonic: "İzmir ‘İ’lk, ‘L’imanı en büyük!" },
+            { id: 406, question: "‘Balık suda yüzmezse ne yapar?’ atasözü ne anlama gelir?", correctAnswer: "Her şey doğal yerinde iyidir", incorrectAnswers: ["Balık her zaman yüzer", "Su her zaman yeter", "Doğa gereksizdir"], mnemonic: "Balık ‘B’ulunur, ‘S’uda yüzer!" },
+            { id: 407, question: "Osmanlı Devleti’nde ilk hastane ne zaman açılmıştır?", correctAnswer: "1453", incorrectAnswers: ["1831", "1876", "1908"], mnemonic: "1453’te ‘H’astane ‘H’izmet, Fatih’le!" },
+            { id: 408, question: "Akdeniz Bölgesi’nin en uzun nehri hangisidir?", correctAnswer: "Göksu Nehri", incorrectAnswers: ["Manavgat Çayı", "Aksu Çayı", "Dalaman Çayı"], mnemonic: "Akdeniz’de ‘G’öksu, ‘N’ehrin kralı!" },
+            { id: 409, question: "‘Biri yer biri bakar, kıyamet ondan kopar’ atasözü neyi ifade eder?", correctAnswer: "Eşitsizlik kavga çıkarır", incorrectAnswers: ["Bakmak her zaman iyidir", "Yemek her zaman yeter", "Kıyamet gereksizdir"], mnemonic: "Biri ‘B’akar, ‘K’ıyamet kopar!" },
+            { id: 410, question: "Atatürk’ün en sevdiği içecek nedir?", correctAnswer: "Çay", incorrectAnswers: ["Kahve", "Rakı", "Şarap"], mnemonic: "Çay ‘Ç’ok güzel, ‘A’tatürk’ün içeceği!" },
+            { id: 411, question: "Türkiye’nin en büyük müzesi hangisidir?", correctAnswer: "Topkapı Sarayı Müzesi", incorrectAnswers: ["Ankara Etnografya Müzesi", "Efes Müzesi", "Pergamon Müzesi"], mnemonic: "Topkapı ‘T’ek, ‘M’üzede en büyük!" },
+            { id: 412, question: "‘Büyük başın derdi büyük olur’ atasözü ne anlama gelir?", correctAnswer: "Yüksek mevki zorluk getirir", incorrectAnswers: ["Baş her zaman büyük", "Dert her zaman küçüktür", "Mevki gereksizdir"], mnemonic: "Büyük ‘B’aş, ‘D’erdi büyük!" },
+            { id: 413, question: "Osmanlı Devleti’nde ilk okul ne zaman açılmıştır?", correctAnswer: "1453", incorrectAnswers: ["1831", "1876", "1908"], mnemonic: "1453’te ‘O’kul ‘O’pildi, Fatih’le!" },
+            { id: 414, question: "Marmara Bölgesi’nin en büyük gölü hangisidir?", correctAnswer: "İznik Gölü", incorrectAnswers: ["Ulubat Gölü", "Sapanca Gölü", "Manyas Gölü"], mnemonic: "Marmara’da ‘İ’znik, ‘G’ölün kralı!" },
+            { id: 415, question: "‘Çöldeki haydutun attığı taş’ atasözü neyi ifade eder?", correctAnswer: "Güvenilmez bir şey", incorrectAnswers: ["Taş her zaman atılır", "Çöldeki her şey güvenilir", "Haydut her zaman iyidir"], mnemonic: "Çöldeki ‘Ç’alıntı, ‘T’aş güvenmez!" },
+            { id: 416, question: "Atatürk’ün en sevdiği kuş türü nedir?", correctAnswer: "Serçe", incorrectAnswers: ["Karga", "Güvercin", "Kartal"], mnemonic: "Serçe ‘S’evimli, ‘A’tatürk’ün kuşu!" },
+            { id: 417, question: "Türkiye’nin en büyük köprüsü hangisidir?", correctAnswer: "Yavuz Sultan Selim Köprüsü", incorrectAnswers: ["Fatih Sultan Mehmet Köprüsü", "15 Temmuz Şehitler Köprüsü", "Osman Gazi Köprüsü"], mnemonic: "Yavuz ‘Y’ükseklik, ‘K’öprü en büyük!" },
+            { id: 418, question: "‘Dağlar başı dumanlı’ atasözü ne anlama gelir?", correctAnswer: "Zor durumlar belirsizdir", incorrectAnswers: ["Dağlar her zaman dumanlı", "Baş her zaman açık", "Belirsizlik gereksizdir"], mnemonic: "Dağ ‘D’umanlı, ‘B’aşı karışık!" },
+            { id: 419, question: "Osmanlı Devleti’nde ilk posta teşkilatı ne zaman kurulmuştur?", correctAnswer: "1834", incorrectAnswers: ["1831", "1876", "1908"], mnemonic: "1834’te ‘P’osta ‘T’eşkilat ‘K’uruldu, Osmanlı’da!" },
+            { id: 420, question: "Doğu Anadolu Bölgesi’nin en uzun nehri hangisidir?", correctAnswer: "Fırat Nehri", incorrectAnswers: ["Dicle Nehri", "Aras Nehri", "Karasu Nehri"], mnemonic: "Doğu’da ‘F’ırat, ‘N’ehrin devi!" },
+            { id: 421, question: "‘El alem ne der’ atasözü neyi ifade eder?", correctAnswer: "Toplumun görüşüne önem verme", incorrectAnswers: ["El alem her zaman iyidir", "Görüş her zaman gereklidir", "Toplum önemsizdir"], mnemonic: "El ‘E’lem, ‘D’er!" },
+            { id: 422, question: "Atatürk’ün en sevdiği ressam kimdir?", correctAnswer: "İbrahim Çallı", incorrectAnswers: ["Fikret Mualla", "Abidin Dino", "Bedri Rahmi Eyüboğlu"], mnemonic: "İbrahim ‘İ’lk, ‘A’tatürk’ün ressamı!" },
+            { id: 423, question: "Türkiye’nin en büyük camisi hangisidir?", correctAnswer: "Süleymaniye Camii", incorrectAnswers: ["Ayasofya Camii", "Selimiye Camii", "Kocatepe Camii"], mnemonic: "Süleymaniye ‘S’üper, ‘C’amii en büyük!" },
+            { id: 424, question: "‘Eşeği bağla, otu getir’ atasözü ne anlama gelir?", correctAnswer: "İşin temeline dikkat et", incorrectAnswers: ["Eşek her zaman bağlanır", "Ot her zaman yeter", "Temel gereksizdir"], mnemonic: "Eşek ‘E’min, ‘O’tu getir!" },
+            { id: 425, question: "Osmanlı Devleti’nde ilk demiryolu ne zaman yapılmıştır?", correctAnswer: "1856", incorrectAnswers: ["1831", "1876", "1908"], mnemonic: "1856’da ‘D’emiryolu ‘D’ola, Osmanlı’da!" },
+            { id: 426, question: "Güneydoğu Anadolu Bölgesi’nin en yüksek dağı hangisidir?", correctAnswer: "Nemrut Dağı", incorrectAnswers: ["Karaca Dağ", "Türkoğlu Dağı", "Hakkari Dağları"], mnemonic: "Güneydoğu’da ‘N’emrut, ‘D’ağın kralı!" },
+            { id: 427, question: "‘Gözünü sevdiğim’ atasözü neyi ifade eder?", correctAnswer: "Sevgi ve hayranlık", incorrectAnswers: ["Göz her zaman sevilir", "Hayranlık gereksizdir", "Sevgi her zaman yeter"], mnemonic: "Göz ‘G’üzel, ‘S’evgi dolu!" },
+            { id: 428, question: "Atatürk’ün en sevdiği oyun nedir?", correctAnswer: "Satranç", incorrectAnswers: ["Dama", "Tavla", "Okey"], mnemonic: "Satranç ‘S’trateji, ‘A’tatürk’ün oyunu!" },
+            { id: 429, question: "Türkiye’nin en büyük barajı hangisidir?", correctAnswer: "Atatürk Barajı", incorrectAnswers: ["Keban Barajı", "Karakaya Barajı", "Hirfanlı Barajı"], mnemonic: "Atatürk ‘A’kıyor, ‘B’araj en büyük!" },
+            { id: 430, question: "‘Haksız iken kaç’ atasözü ne anlama gelir?", correctAnswer: "Haksızken uzak dur", incorrectAnswers: ["Kaçmak her zaman iyidir", "Haksızlık gereksizdir", "Uzaklık önemsizdir"], mnemonic: "Haksız ‘H’ayır, ‘K’aç!" },
+            { id: 431, question: "Osmanlı Devleti’nde ilk üniversite ne zaman kurulmuştur?", correctAnswer: "1453", incorrectAnswers: ["1831", "1876", "1908"], mnemonic: "1453’te ‘Ü’niversite ‘Ü’stün, Fatih’le!" },
+            { id: 432, question: "Karadeniz Bölgesi’nin en uzun nehri hangisidir?", correctAnswer: "Kızılırmak", incorrectAnswers: ["Yeşilırmak", "Filyos Çayı", "Çoruh Nehri"], mnemonic: "Karadeniz’de ‘K’ızılırmak, ‘N’ehrin devi!" },
+            { id: 433, question: "‘İki başlı yılan’ atasözü neyi ifade eder?", correctAnswer: "Çelişkili durum", incorrectAnswers: ["Yılan her zaman başlı", "Çelişki gereksizdir", "Durum her zaman iyidir"], mnemonic: "İki ‘İ’kilem, ‘Y’ılan çelişkisi!" },
+            { id: 434, question: "Atatürk’ün en sevdiği şehir hangisidir?", correctAnswer: "Ankara", incorrectAnswers: ["İstanbul", "İzmir", "Bursa"], mnemonic: "Ankara ‘A’şkın, ‘A’tatürk’ün şehri!" },
+            { id: 435, question: "Türkiye’nin en büyük havalimanı hangisidir?", correctAnswer: "İstanbul Havalimanı", incorrectAnswers: ["Ankara Esenboğa", "İzmir Adnan Menderes", "Antalya Havalimanı"], mnemonic: "İstanbul ‘İ’lk, ‘H’avalimanı en büyük!" },
+            { id: 436, question: "‘Kara gün dostu’ atasözü ne anlama gelir?", correctAnswer: "Zor günde destek olan", incorrectAnswers: ["Kara her zaman dost", "Gün her zaman iyidir", "Destek gereksizdir"], mnemonic: "Kara ‘K’aranlık, dost ‘D’estek!" },
+            { id: 437, question: "Osmanlı Devleti’nde ilk deniz üssü ne zaman kurulmuştur?", correctAnswer: "1453", incorrectAnswers: ["1831", "1876", "1908"], mnemonic: "1453’te ‘D’eniz ‘Ü’ssü ‘K’uruldu, Fatih’le!" },
+            { id: 438, question: "İç Anadolu Bölgesi’nin en büyük gölü hangisidir?", correctAnswer: "Tuz Gölü", incorrectAnswers: ["Eber Gölü", "Akşehir Gölü", "Hacılar Gölü"], mnemonic: "İç Anadolu’da ‘T’uz, ‘G’ölün kralı!" },
+            { id: 439, question: "‘Körün istediği bir göz, Allah verdi iki göz’ atasözü neyi ifade eder?", correctAnswer: "Şikayet etmek anlamsızdır", incorrectAnswers: ["Göz her zaman yeter", "Allah her zaman verir", "Şikayet gereklidir"], mnemonic: "Kör ‘K’ısık, ‘İ’ki gözle şükret!" },
+            { id: 440, question: "Atatürk’ün en sevdiği spor dalı nedir?", correctAnswer: "Yüzme", incorrectAnswers: ["Futbol", "Atletizm", "Basketbol"], mnemonic: "Yüzme ‘Y’üce, ‘A’tatürk’ün sporu!" },
+            { id: 441, question: "Türkiye’nin en büyük enerji santrali hangisidir?", correctAnswer: "Keban Barajı", incorrectAnswers: ["Atatürk Barajı", "Karakaya Barajı", "Birecik Barajı"], mnemonic: "Keban ‘K’ral, ‘E’nerji santrali!" },
+            { id: 442, question: "‘Lafı gediğine koymak’ atasözü ne anlama gelir?", correctAnswer: "Doğru zamanda konuşmak", incorrectAnswers: ["Laf her zaman yeter", "Gediği her zaman bulur", "Konuşmak gereksizdir"], mnemonic: "Laf ‘L’az, ‘G’ediğine koy!" },
+            { id: 443, question: "Osmanlı Devleti’nde ilk tünel ne zaman yapılmıştır?", correctAnswer: "1892", incorrectAnswers: ["1831", "1876", "1908"], mnemonic: "1892’de ‘T’ünel ‘T’ıkırdadı, Osmanlı’da!" },
+            { id: 444, question: "Doğu Anadolu Bölgesi’nin en büyük gölü hangisidir?", correctAnswer: "Van Gölü", incorrectAnswers: ["Hazar Gölü", "Çıldır Gölü", "Nazik Gölü"], mnemonic: "Doğu’da ‘V’an, ‘G’ölün devi!" },
+            { id: 445, question: "‘Mal bulmuş Mağribi’ atasözü neyi ifade eder?", correctAnswer: "Büyük bir sevinçle davranmak", incorrectAnswers: ["Mal her zaman bulunur", "Mağribi her zaman sevinir", "Sevinç gereksizdir"], mnemonic: "Mal ‘M’ucize, ‘M’ağribi sevinir!" },
+            { id: 446, question: "Atatürk’ün en sevdiği yazar kimdir?", correctAnswer: "Reşat Nuri Güntekin", incorrectAnswers: ["Sabahattin Ali", "Peyami Safa", "Orhan Kemal"], mnemonic: "Reşat ‘R’üya, ‘A’tatürk’ün yazarı!" },
+            { id: 447, question: "Türkiye’nin en büyük adası hangisidir?", correctAnswer: "Gökçeada", incorrectAnswers: ["Bozcaada", "Kekova", "Kaş"], mnemonic: "Gökçeada ‘G’üzel, ‘A’da en büyük!" },
+            { id: 448, question: "‘Ne oldum demem, ne olacağım derim’ atasözü ne anlama gelir?", correctAnswer: "Alçak gönüllü ol", incorrectAnswers: ["Oldum her zaman yeter", "Olacağım gereksizdir", "Alçaklık önemsizdir"], mnemonic: "Ne ‘N’aber, ‘O’lacağım derim!" },
+            { id: 449, question: "Osmanlı Devleti’nde ilk uçak ne zaman kullanılmıştır?", correctAnswer: "1911", incorrectAnswers: ["1831", "1876", "1908"], mnemonic: "1911’de ‘U’çak ‘U’çtu, Osmanlı’da!" },
+            { id: 450, question: "Güneydoğu Anadolu Bölgesi’nin en büyük gölü hangisidir?", correctAnswer: "Hazar Gölü", incorrectAnswers: ["Van Gölü", "Çıldır Gölü", "Beyşehir Gölü"], mnemonic: "Güneydoğu’da ‘H’azar, ‘G’ölün kralı!" },
+            { id: 451, question: "‘Oturduğu yerden kalkmayan’ atasözü neyi ifade eder?", correctAnswer: "Tembel kişi", incorrectAnswers: ["Kalkmak her zaman iyidir", "Oturmak gereklidir", "Tembellik önemsizdir"], mnemonic: "Otur ‘O’ğlum, ‘T’embel kal!" },
+            { id: 452, question: "Atatürk’ün en sevdiği heykeltıraş kimdir?", correctAnswer: "Heinrich Krippel", incorrectAnswers: ["Ali Hadi Bara", "Zühtü Müridoğlu", "Ratip Aşir Acudoğlu"], mnemonic: "Heinrich ‘H’arikadır, ‘A’tatürk’ün heykeltıraşı!" },
+            { id: 453, question: "Türkiye’nin en büyük şelalesi hangisidir?", correctAnswer: "Düden Şelalesi", incorrectAnswers: ["Manavgat Şelalesi", "Tortum Şelalesi", "Küçük Çayı Şelalesi"], mnemonic: "Düden ‘D’ev, ‘Ş’elale en büyük!" },
+            { id: 454, question: "‘Sabahın sahibi çıkar’ atasözü ne anlama gelir?", correctAnswer: "Erken kalkan kazanır", incorrectAnswers: ["Sabah her zaman yeter", "Sahip her zaman çıkar", "Erken kalkmak gereksizdir"], mnemonic: "Sabah ‘S’ahip, ‘Ç’ıkar!" },
+            { id: 455, question: "Osmanlı Devleti’nde ilk tiyatro ne zaman açılmıştır?", correctAnswer: "1839", incorrectAnswers: ["1831", "1876", "1908"], mnemonic: "1839’da ‘T’iyatro ‘T’eklendi, Osmanlı’da!" },
+            { id: 456, question: "Karadeniz Bölgesi’nin en yüksek dağı hangisidir?", correctAnswer: "Kaçkar Dağı", incorrectAnswers: ["Ilgaz Dağı", "Verçenik Dağı", "Zigana Dağı"], mnemonic: "Karadeniz’de ‘K’açkar, ‘D’ağın kralı!" },
+            { id: 457, question: "‘Söz ağızdan bir kere çıkar’ atasözü neyi ifade eder?", correctAnswer: "Söylenen geri alınmaz", incorrectAnswers: ["Ağız her zaman yeter", "Söz her zaman geri alınır", "Konuşmak gereksizdir"], mnemonic: "Söz ‘S’üzülür, ‘Ç’ıkar!" },
+            { id: 458, question: "Atatürk’ün en sevdiği dans türü nedir?", correctAnswer: "Vals", incorrectAnswers: ["Zeybek", "Halay", "Horon"], mnemonic: "Vals ‘V’ay be, ‘A’tatürk’ün dansı!" },
+            { id: 459, question: "Türkiye’nin en büyük plajı hangisidir?", correctAnswer: "Patara Plajı", incorrectAnswers: ["Çıralı Plajı", "Kaputaş Plajı", "Ölüdeniz"], mnemonic: "Patara ‘P’ek, ‘P’lak en büyük!" },
+            { id: 460, question: "‘Taş yerinde ağırdır’ atasözü ne anlama gelir?", correctAnswer: "Her şey kendi yerinde değerlidir", incorrectAnswers: ["Taş her zaman ağır", "Yer her zaman yeter", "Değer gereksizdir"], mnemonic: "Taş ‘T’am yerinde, ‘A’ğır!" },
+            { id: 461, question: "Osmanlı Devleti’nde ilk gazete ne zaman yayınlanmıştır?", correctAnswer: "1831", incorrectAnswers: ["1876", "1908", "1923"], mnemonic: "1831’de ‘G’azete ‘G’eldi, Osmanlı’da!" },
+            { id: 462, question: "Ege Bölgesi’nin en büyük gölü hangisidir?", correctAnswer: "Bafa Gölü", incorrectAnswers: ["Beyşehir Gölü", "Eber Gölü", "Işıklı Gölü"], mnemonic: "Ege’de ‘B’afa, ‘G’ölün kralı!" },
+            { id: 463, question: "‘Uçurumun kenarında oturup dalga geçen’ atasözü neyi ifade eder?", correctAnswer: "Riskli davranış", incorrectAnswers: ["Uçurum her zaman iyidir", "Dalga geçmek gereklidir", "Risk önemsizdir"], mnemonic: "Uçurum ‘U’zak, ‘D’alga geçme!" },
+            { id: 464, question: "Atatürk’ün en sevdiği tatlı nedir?", correctAnswer: "Baklava", incorrectAnswers: ["Lokum", "Künefe", "Sütlaç"], mnemonic: "Baklava ‘B’ayıldım, ‘A’tatürk’ün tatlısı!" },
+            { id: 465, question: "Türkiye’nin en büyük yaylası hangisidir?", correctAnswer: "Kackar Yaylaları", incorrectAnswers: ["Ayder Yaylası", "Uzungöl Yaylası", "Çamlıhemşin Yaylası"], mnemonic: "Kaçkar ‘K’ral, ‘Y’ayla en büyük!" },
+            { id: 466, question: "‘Vakit nakittir, harca’ atasözü ne anlama gelir?", correctAnswer: "Zamanı iyi kullan", incorrectAnswers: ["Vakit her zaman harcanır", "Nakit her zaman yeter", "Kullanım gereksizdir"], mnemonic: "Vakit ‘V’ay, ‘N’akit harca!" },
+            { id: 467, question: "Osmanlı Devleti’nde ilk radyo yayını ne zaman yapılmıştır?", correctAnswer: "1927", incorrectAnswers: ["1831", "1908", "1940"], mnemonic: "1927’de ‘R’adyo ‘Y’ayın, Osmanlı’da!" },
+            { id: 468, question: "Doğu Anadolu Bölgesi’nin en büyük yaylası hangisidir?", correctAnswer: "Hakkari Yaylaları", incorrectAnswers: ["Erzurum Yaylaları", "Ağrı Yaylaları", "Van Yaylaları"], mnemonic: "Doğu’da ‘H’akkari, ‘Y’ayla kralı!" },
+            { id: 469, question: "‘Ya istiklal ya ölüm’ atasözü neyi ifade eder?", correctAnswer: "Bağımsızlık için her şey", incorrectAnswers: ["Ölüm her zaman yeter", "İstiklal gereksizdir", "Her şey iyidir"], mnemonic: "Ya ‘Y’üce, ‘İ’stiklal!" },
+            { id: 470, question: "Atatürk’ün en sevdiği bahçe bitkisi nedir?", correctAnswer: "Gül", incorrectAnswers: ["Lale", "Menekşe", "Naber"], mnemonic: "Gül ‘G’üzel, ‘A’tatürk’ün bitkisi!" },
+            { id: 471, question: "Türkiye’nin en büyük ormanı hangisidir?", correctAnswer: "Belgrad Ormanı", incorrectAnswers: ["Köprülü Kanyon", "Dilek Yarımadası", "Yedigöller"], mnemonic: "Belgrad ‘B’üyük, ‘O’rman kralı!" },
+            { id: 472, question: "‘Zamanla her şey hallolur’ atasözü ne anlama gelir?", correctAnswer: "Sabırla sorunlar çözülür", incorrectAnswers: ["Zaman her zaman yeter", "Her şey her zaman hallolur", "Sabır gereksizdir"], mnemonic: "Zaman ‘Z’engin, ‘H’alleder!" },
+            { id: 473, question: "Osmanlı Devleti’nde ilk kütüphane ne zaman kurulmuştur?", correctAnswer: "1453", incorrectAnswers: ["1831", "1876", "1908"], mnemonic: "1453’te ‘K’ütüphane ‘K’uruldu, Fatih’le!" },
+            { id: 474, question: "Güneydoğu Anadolu Bölgesi’nin en büyük yaylası hangisidir?", correctAnswer: "Mardin Yaylaları", incorrectAnswers: ["Şanlıurfa Yaylaları", "Gaziantep Yaylaları", "Diyarbakır Yaylaları"], mnemonic: "Güneydoğu’da ‘M’ardin, ‘Y’ayla kralı!" },
+            { id: 475, question: "‘Ağaç yaşken eğilir’ atasözü neyi ifade eder?", correctAnswer: "Çocuklukta eğitim önemlidir", incorrectAnswers: ["Ağaç her zaman eğilir", "Eğitim gereksizdir", "Yaş her zaman yeter"], mnemonic: "Ağaç ‘A’şkın, ‘E’ğilir!" },
+            { id: 476, question: "Atatürk’ün en sevdiği deniz nedir?", correctAnswer: "Ege Denizi", incorrectAnswers: ["Karadeniz", "Akdeniz", "Marmara Denizi"], mnemonic: "Ege ‘E’ngin, ‘A’tatürk’ün denizi!" },
+            { id: 477, question: "Türkiye’nin en büyük mağarası hangisidir?", correctAnswer: "Karain Mağarası", incorrectAnswers: ["Damlataş Mağarası", "Cennet Mağarası", "İnceğiz Mağarası"], mnemonic: "Karain ‘K’oca, ‘M’ağara en büyük!" },
+            { id: 478, question: "‘Baba malı har vurup harman savurmak’ atasözü ne anlama gelir?", correctAnswer: "Mirası savurganlıkla harcamak", incorrectAnswers: ["Baba her zaman mal verir", "Harcamak gereklidir", "Savurganlık iyidir"], mnemonic: "Baba ‘B’ırakır, ‘H’ar vurur!" },
+            { id: 479, question: "Osmanlı Devleti’nde ilk fabrika ne zaman kurulmuştur?", correctAnswer: "1827", incorrectAnswers: ["1773", "1876", "1908"], mnemonic: "1827’de ‘F’abrika ‘F’ırladı, Osmanlı’da!" },
+            { id: 480, question: "Karadeniz Bölgesi’nin en büyük yaylası hangisidir?", correctAnswer: "Ayder Yaylası", incorrectAnswers: ["Rize Yaylaları", "Trabzon Yaylaları", "Ordu Yaylaları"], mnemonic: "Karadeniz’de ‘A’yder, ‘Y’ayla kralı!" },
+            { id: 481, question: "‘Cahil cesaretine kapılma’ atasözü neyi ifade eder?", correctAnswer: "Bilgisizliğe güvenme", incorrectAnswers: ["Cesaret her zaman iyidir", "Cahillik gereklidir", "Güvenmek önemsizdir"], mnemonic: "Cahil ‘C’esur, ‘K’aç!" },
+            { id: 482, question: "Atatürk’ün en sevdiği asker kimdir?", correctAnswer: "Mustafa Kemal", incorrectAnswers: ["Fevzi Çakmak", "İsmet İnönü", "Kazım Karabekir"], mnemonic: "Mustafa ‘M’ükemmel, ‘A’tatürk’ün askeri!" },
+            { id: 483, question: "Türkiye’nin en büyük gökdeleni hangisidir?", correctAnswer: "İstanbul Sapphire", incorrectAnswers: ["Metrocity", "İş Kuleleri", "Kanyon"], mnemonic: "Sapphire ‘S’üper, ‘G’ökdelen en büyük!" },
+            { id: 484, question: "‘Daldan dala konmak’ atasözü ne anlama gelir?", correctAnswer: "Kararsızca hareket etmek", incorrectAnswers: ["Dal her zaman yeter", "Konmak gereklidir", "Kararsızlık iyidir"], mnemonic: "Dal ‘D’aldan, ‘K’onar!" },
+            { id: 485, question: "Osmanlı Devleti’nde ilk telgraf ne zaman kullanılmıştır?", correctAnswer: "1855", incorrectAnswers: ["1831", "1876", "1908"], mnemonic: "1855’te ‘T’elgraf ‘T’ıkırdadı, Osmanlı’da!" },
+            { id: 486, question: "Ege Bölgesi’nin en büyük yaylası hangisidir?", correctAnswer: "Bozdağ Yaylası", incorrectAnswers: ["Aydın Yaylası", "İzmir Yaylası", "Muğla Yaylası"], mnemonic: "Ege’de ‘B’ozdağ, ‘Y’ayla kralı!" },
+            { id: 487, question: "‘El elden üstün olur’ atasözü neyi ifade eder?", correctAnswer: "Bazıları diğerlerinden üstün", incorrectAnswers: ["El her zaman üstündür", "Üstünlük gereksizdir", "Herkes eşittir"], mnemonic: "El ‘E’l üstün, ‘O’lur!" },
+            { id: 488, question: "Atatürk’ün en sevdiği mimar kimdir?", correctAnswer: "Vedat Tek", incorrectAnswers: ["Mimar Sinan", "Seddik Arif", "Cemalettin"], mnemonic: "Vedat ‘V’ay be, ‘A’tatürk’ün mimarı!" },
+            { id: 489, question: "Türkiye’nin en büyük pazarı hangisidir?", correctAnswer: "Kapalıçarşı", incorrectAnswers: ["Mısır Çarşısı", "Spice Bazaar", "Beyoğlu Pazarı"], mnemonic: "Kapalıçarşı ‘K’ral, ‘P’azar en büyük!" },
+            { id: 490, question: "‘Gözü tok olanın malı çok olur’ atasözü ne anlama gelir?", correctAnswer: "İhtiyacı olana yeter", incorrectAnswers: ["Göz her zaman tok", "Mal her zaman çok", "İhtiyaç gereksizdir"], mnemonic: "Göz ‘G’üzel, ‘M’al çok!" },
+            { id: 491, question: "Osmanlı Devleti’nde ilk elektrik ne zaman kullanılmıştır?", correctAnswer: "1879", incorrectAnswers: ["1831", "1908", "1923"], mnemonic: "1879’da ‘E’lektrik ‘E’nerji, Osmanlı’da!" },
+            { id: 492, question: "Doğu Anadolu Bölgesi’nin en büyük yaylası hangisidir?", correctAnswer: "Ağrı Yaylaları", incorrectAnswers: ["Van Yaylaları", "Erzurum Yaylaları", "Kars Yaylaları"], mnemonic: "Doğu’da ‘A’ğrı, ‘Y’ayla kralı!" },
+            { id: 493, question: "‘Haksız iken susmak’ atasözü neyi ifade eder?", correctAnswer: "Haksızken sessiz kal", incorrectAnswers: ["Susmak her zaman iyidir", "Haksızlık gereksizdir", "Sessizlik önemsizdir"], mnemonic: "Haksız ‘H’ayır, ‘S’us!" },
+            { id: 494, question: "Atatürk’ün en sevdiği matematikçi kimdir?", correctAnswer: "Pitagoras", incorrectAnswers: ["Öklid", "Arşimet", "Tales"], mnemonic: "Pitagoras ‘P’ek, ‘A’tatürk’ün matematikçisi!" },
+            { id: 495, question: "Türkiye’nin en büyük parkı hangisidir?", correctAnswer: "Gülhane Parkı", incorrectAnswers: ["Emirgan Korusu", "Yıldız Parkı", "Maçka Parkı"], mnemonic: "Gülhane ‘G’üzel, ‘P’ark en büyük!" },
+            { id: 496, question: "‘İki kapılı han’ atasözü ne anlama gelir?", correctAnswer: "Dünya geçicidir", incorrectAnswers: ["Kapı her zaman yeter", "Han her zaman kalır", "Geçicilik gereksizdir"], mnemonic: "İki ‘İ’kilem, ‘H’an geçici!" },
+            { id: 497, question: "Osmanlı Devleti’nde ilk köprü ne zaman yapılmıştır?", correctAnswer: "1453", incorrectAnswers: ["1831", "1876", "1908"], mnemonic: "1453’te ‘K’öprü ‘K’uruldu, Fatih’le!" },
+            { id: 498, question: "Güneydoğu Anadolu Bölgesi’nin en büyük yaylası hangisidir?", correctAnswer: "Diyarbakır Yaylaları", incorrectAnswers: ["Mardin Yaylaları", "Şanlıurfa Yaylaları", "Gaziantep Yaylaları"], mnemonic: "Güneydoğu’da ‘D’iyarbakır, ‘Y’ayla kralı!" },
+            { id: 499, question: "‘Kızılcık şerbeti içtim’ atasözü neyi ifade eder?", correctAnswer: "Haksız bir durum", incorrectAnswers: ["Şerbet her zaman yeter", "Kızılcık her zaman iyi", "Haksızlık gereksizdir"], mnemonic: "Kızılcık ‘K’urnaz, ‘Ş’erbet haksız!" },
+            { id: 500, question: "Atatürk’ün en sevdiği coğrafyacı kimdir?", correctAnswer: "Strabon", incorrectAnswers: ["Ptolemy", "Herodot", "Eratosthenes"], mnemonic: "Strabon ‘S’üper, ‘A’tatürk’ün coğrafyacısı!" },
+            { id: 501, question: "Türkiye’nin en büyük hayvanat bahçesi hangisidir?", correctAnswer: "Ankara Hayvanat Bahçesi", incorrectAnswers: ["İstanbul Hayvanat Bahçesi", "İzmir Hayvanat Bahçesi", "Bursa Hayvanat Bahçesi"], mnemonic: "Ankara ‘A’çık, ‘H’ayvanat kralı!" },
+            { id: 502, question: "‘Laf ebesi’ atasözü ne anlama gelir?", correctAnswer: "Çok konuşan kişi", incorrectAnswers: ["Laf her zaman yeter", "Ebe her zaman konuşur", "Konuşma gereksizdir"], mnemonic: "Laf ‘L’az, ‘E’be çok!" },
+            { id: 503, question: "Osmanlı Devleti’nde ilk saat ne zaman kullanılmıştır?", correctAnswer: "1509", incorrectAnswers: ["1831", "1876", "1908"], mnemonic: "1509’da ‘S’aat ‘S’ürüldü, Osmanlı’da!" },
+            { id: 504, question: "Karadeniz Bölgesi’nin en büyük gölü hangisidir?", correctAnswer: "Abant Gölü", incorrectAnswers: ["Sera Gölü", "Uzungöl", "Samsun Gölü"], mnemonic: "Karadeniz’de ‘A’bant, ‘G’ölün kralı!" },
+            { id: 505, question: "‘Mal canın yongasıdır’ atasözü neyi ifade eder?", correctAnswer: "Mal çok değerlidir", incorrectAnswers: ["Can her zaman iyidir", "Mal önemsizdir", "Yonga her zaman yeter"], mnemonic: "Mal ‘M’ükemmel, ‘C’anın yongası!" },
+            { id: 506, question: "Atatürk’ün en sevdiği arkeolog kimdir?", correctAnswer: "Theodor Wiegand", incorrectAnswers: ["Carl Humann", "Heinrich Schliemann", "John Garstang"], mnemonic: "Theodor ‘T’ek, ‘A’tatürk’ün arkeoloğu!" },
+            { id: 507, question: "Türkiye’nin en büyük kaplıcası hangisidir?", correctAnswer: "Pamukkale", incorrectAnswers: ["Afyon Kaplıcaları", "Bursa Kaplıcaları", "Yalova Kaplıcaları"], mnemonic: "Pamukkale ‘P’ek, ‘K’aplıca en büyük!" },
+            { id: 508, question: "‘Ne ekersen onu biçersin’ atasözü ne anlama gelir?", correctAnswer: "Davranışlarının sonucunu yaşarsın", incorrectAnswers: ["Ekmek her zaman iyidir", "Biçmek gereksizdir", "Sonuç her zaman aynıdır"], mnemonic: "Ne ‘N’aber, ‘B’içersin!" },
+            { id: 509, question: "Osmanlı Devleti’nde ilk tramvay ne zaman kullanılmıştır?", correctAnswer: "1871", incorrectAnswers: ["1831", "1908", "1923"], mnemonic: "1871’de ‘T’ramvay ‘T’ıkırdadı, Osmanlı’da!" },
+            { id: 510, question: "Ege Bölgesi’nin en büyük yaylası hangisidir?", correctAnswer: "Aydın Yaylaları", incorrectAnswers: ["Bozdağ Yaylası", "İzmir Yaylaları", "Muğla Yaylaları"], mnemonic: "Ege’de ‘A’ydın, ‘Y’ayla kralı!" },
+            { id: 511, question: "‘Oturduğun yerden kalk’ atasözü neyi ifade eder?", correctAnswer: "Çalışmaya başla", incorrectAnswers: ["Oturmak her zaman iyidir", "Kalkmak gereksizdir", "Çalışma önemsizdir"], mnemonic: "Otur ‘O’ğlum, ‘K’alk!" },
+            { id: 512, question: "Atatürk’ün en sevdiği botanikçi kimdir?", correctAnswer: "Carl Linnaeus", incorrectAnswers: ["Charles Darwin", "Gregor Mendel", "Joseph Banks"], mnemonic: "Carl ‘C’ok güzel, ‘A’tatürk’ün botanikçisi!" },
+            { id: 513, question: "Türkiye’nin en büyük kanyonu hangisidir?", correctAnswer: "Saklıkent Kanyonu", incorrectAnswers: ["Köprülü Kanyon", "İkizdere Kanyonu", "Uçansu Kanyonu"], mnemonic: "Saklıkent ‘S’üper, ‘K’anyon en büyük!" },
+            { id: 514, question: "‘Sabahın seherinde’ atasözü ne anlama gelir?", correctAnswer: "Erken saatte", incorrectAnswers: ["Seher her zaman yeter", "Sabah her zaman iyidir", "Erkenlik gereksizdir"], mnemonic: "Sabah ‘S’ehri, ‘E’rken!" },
+            { id: 515, question: "Osmanlı Devleti’nde ilk balıkçılık ne zaman yapılmıştır?", correctAnswer: "1453", incorrectAnswers: ["1831", "1876", "1908"], mnemonic: "1453’te ‘B’alık ‘Ç’ekildi, Fatih’le!" },
+            { id: 516, question: "Doğu Anadolu Bölgesi’nin en büyük yaylası hangisidir?", correctAnswer: "Van Yaylaları", incorrectAnswers: ["Ağrı Yaylaları", "Erzurum Yaylaları", "Kars Yaylaları"], mnemonic: "Doğu’da ‘V’an, ‘Y’ayla kralı!" },
+            { id: 517, question: "‘Sözde duran kazanır’ atasözü neyi ifade eder?", correctAnswer: "Sözüne sadık ol", incorrectAnswers: ["Söz her zaman yeter", "Durmak gereksizdir", "Sadakat önemsizdir"], mnemonic: "Söz ‘S’ıkı, ‘Kazanır!" },
+            { id: 518, question: "Atatürk’ün en sevdiği astronom kimdir?", correctAnswer: "Galileo Galilei", incorrectAnswers: ["Kopernik", "Kepler", "Newton"], mnemonic: "Galileo ‘G’üzel, ‘A’tatürk’ün astronomu!" },
+            { id: 519, question: "Türkiye’nin en büyük gölü hangisidir?", correctAnswer: "Van Gölü", incorrectAnswers: ["Tuz Gölü", "Beyşehir Gölü", "Eğirdir Gölü"], mnemonic: "Van ‘V’ay be, ‘G’öl en büyük!" },
+            { id: 520, question: "‘Taş attım da kolum mu yoruldu’ atasözü ne anlama gelir?", correctAnswer: "Küçük bir çaba", incorrectAnswers: ["Taş her zaman atılır", "Kolluk her zaman yorulur", "Çaba gereksizdir"], mnemonic: "Taş ‘T’ık, ‘K’ol yorulmaz!" },
+            { id: 521, question: "Osmanlı Devleti’nde ilk hastane ne zaman yapılmıştır?", correctAnswer: "1453", incorrectAnswers: ["1831", "1876", "1908"], mnemonic: "1453’te ‘H’astane ‘H’ayatta, Fatih’le!" },
+            { id: 522, question: "Güneydoğu Anadolu Bölgesi’nin en büyük yaylası hangisidir?", correctAnswer: "Şanlıurfa Yaylaları", incorrectAnswers: ["Mardin Yaylaları", "Diyarbakır Yaylaları", "Gaziantep Yaylaları"], mnemonic: "Güneydoğu’da ‘Ş’anlıurfa, ‘Y’ayla kralı!" },
+            { id: 523, question: "‘Uçan kuşun kanadı kırılır’ atasözü neyi ifade eder?", correctAnswer: "Başarıya engel çıkar", incorrectAnswers: ["Kuş her zaman uçar", "Kanat her zaman kırılır", "Engel gereksizdir"], mnemonic: "Uçan ‘U’çar, ‘K’anadı kırılır!" },
+            { id: 524, question: "Atatürk’ün en sevdiği fizikçi kimdir?", correctAnswer: "Albert Einstein", incorrectAnswers: ["Isaac Newton", "Max Planck", "Nikola Tesla"], mnemonic: "Albert ‘A’şkın, ‘A’tatürk’ün fizikçisi!" },
+            { id: 525, question: "Türkiye’nin en büyük nehirleri hangisidir?", correctAnswer: "Fırat ve Dicle", incorrectAnswers: ["Kızılırmak ve Yeşilırmak", "Sakarya ve Kızılırmak", "Gediz ve Büyük Menderes"], mnemonic: "Fırat ‘F’irari, ‘D’icle ile kral!" },
+            { id: 526, question: "‘Vakit varken iş yap’ atasözü ne anlama gelir?", correctAnswer: "Zamanı iyi kullan", incorrectAnswers: ["Vakit her zaman yeter", "İş her zaman yapılır", "Kullanım gereksizdir"], mnemonic: "Vakit ‘V’ay, ‘İ’ş yap!" },
+            { id: 527, question: "Osmanlı Devleti’nde ilk kömür madeni ne zaman açılmıştır?", correctAnswer: "1848", incorrectAnswers: ["1831", "1876", "1908"], mnemonic: "1848’de ‘K’ömür ‘M’adeni ‘A’çıldı, Osmanlı’da!" },
+            { id: 528, question: "Karadeniz Bölgesi’nin en büyük yaylası hangisidir?", correctAnswer: "Rize Yaylaları", incorrectAnswers: ["Ayder Yaylası", "Trabzon Yaylaları", "Ordu Yaylaları"], mnemonic: "Karadeniz’de ‘R’ize, ‘Y’ayla kralı!" },
+            { id: 529, question: "‘Yaşın başın belli değil’ atasözü neyi ifade eder?", correctAnswer: "Yaşını bilmeyen", incorrectAnswers: ["Yaş her zaman yeter", "Baş her zaman belli", "Bilgi gereksizdir"], mnemonic: "Yaş ‘Y’ok, ‘B’aş belirsiz!" },
+            { id: 530, question: "Atatürk’ün en sevdiği kimyager kimdir?", correctAnswer: "Dmitri Mendeleev", incorrectAnswers: ["Antoine Lavoisier", "John Dalton", "Michael Faraday"], mnemonic: "Dmitri ‘D’ev, ‘A’tatürk’ün kimyacısı!" },
+            { id: 531, question: "Türkiye’nin en büyük akarsuyu hangisidir?", correctAnswer: "Kızılırmak", incorrectAnswers: ["Yeşilırmak", "Sakarya", "Fırat"], mnemonic: "Kızılırmak ‘K’ral, ‘A’karsu en büyük!" },
+            { id: 532, question: "‘Zamanında iş bitir’ atasözü ne anlama gelir?", correctAnswer: "İşleri vaktinde yap", incorrectAnswers: ["Zaman her zaman yeter", "İş her zaman biter", "Vakit gereksizdir"], mnemonic: "Zaman ‘Z’engin, ‘İ’ş bitir!" },
+            { id: 533, question: "Osmanlı Devleti’nde ilk fabrika ne zaman kurulmuştur?", correctAnswer: "1827", incorrectAnswers: ["1773", "1876", "1908"], mnemonic: "1827’de ‘F’abrika ‘F’ırladı, Osmanlı’da!" },
+            { id: 534, question: "Ege Bölgesi’nin en büyük yaylası hangisidir?", correctAnswer: "Muğla Yaylaları", incorrectAnswers: ["Bozdağ Yaylası", "Aydın Yaylaları", "İzmir Yaylaları"], mnemonic: "Ege’de ‘M’uğla, ‘Y’ayla kralı!" },
+            { id: 535, question: "‘Ağzı olan konuşur’ atasözü neyi ifade eder?", correctAnswer: "Herkes konuşabilir", incorrectAnswers: ["Ağız her zaman yeter", "Konuşmak gereksizdir", "Herkes susturulur"], mnemonic: "Ağız ‘A’çık, ‘K’onuşur!" },
+            { id: 536, question: "Atatürk’ün en sevdiği jeolog kimdir?", correctAnswer: "Charles Lyell", incorrectAnswers: ["James Hutton", "William Smith", "Louis Agassiz"], mnemonic: "Charles ‘Ç’ok güzel, ‘A’tatürk’ün jeoloğu!" },
+            { id: 537, question: "Türkiye’nin en büyük madeni hangisidir?", correctAnswer: "Boru Madeni", incorrectAnswers: ["Bakır Madeni", "Krom Madeni", "Demir Madeni"], mnemonic: "Boru ‘B’üyük, ‘M’adeni kralı!" },
+            { id: 538, question: "‘Baba yadigarı’ atasözü ne anlama gelir?", correctAnswer: "Babadan kalma değerli şey", incorrectAnswers: ["Baba her zaman yeter", "Yadigar gereksizdir", "Değer her zaman kalır"], mnemonic: "Baba ‘B’ırakır, ‘Y’adigar!" },
+            { id: 539, question: "Osmanlı Devleti’nde ilk su kemeri ne zaman yapılmıştır?", correctAnswer: "1453", incorrectAnswers: ["1831", "1876", "1908"], mnemonic: "1453’te ‘S’u ‘K’emeri ‘K’uruldu, Fatih’le!" }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let wrongQuestions = [];
+
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const mnemonicElement = document.getElementById('mnemonic');
+        const scoreElement = document.getElementById('score');
+        const nextButton = document.getElementById('next-button');
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function loadQuestion() {
+            if (currentQuestionIndex >= questions.length && wrongQuestions.length === 0) {
+                questionElement.textContent = "Quiz bitti! Skorunuz: " + score + "/" + questions.length;
+                optionsElement.innerHTML = "";
+                mnemonicElement.style.display = "none";
+                nextButton.style.display = "none";
+                return;
+            }
+
+            if (currentQuestionIndex >= questions.length && wrongQuestions.length > 0) {
+                questions.push(...wrongQuestions);
+                wrongQuestions = [];
+                shuffle(questions);
+                currentQuestionIndex = 0;
+            }
+
+            const currentQuestion = questions[currentQuestionIndex];
+            questionElement.textContent = currentQuestion.question;
+            mnemonicElement.textContent = "Hafıza Tekniği: " + currentQuestion.mnemonic;
+            mnemonicElement.style.display = "none";
+            nextButton.style.display = "none";
+
+            const allOptions = [currentQuestion.correctAnswer, ...currentQuestion.incorrectAnswers];
+            shuffle(allOptions);
+
+            optionsElement.innerHTML = "";
+            allOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.addEventListener('click', () => checkAnswer(option, currentQuestion.correctAnswer));
+                optionsElement.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selectedOption, correctAnswer) {
+            const buttons = optionsElement.getElementsByTagName('button');
+            for (let button of buttons) {
+                button.disabled = true;
+                if (button.textContent === correctAnswer) {
+                    button.style.backgroundColor = '#4CAF50';
+                } else if (button.textContent === selectedOption) {
+                    button.style.backgroundColor = '#f44336';
+                }
+            }
+
+            if (selectedOption === correctAnswer) {
+                score++;
+                scoreElement.textContent = "Skor: " + score;
+            } else {
+                wrongQuestions.push(questions[currentQuestionIndex]);
+            }
+
+            mnemonicElement.style.display = "block";
+            nextButton.style.display = "block";
+        }
+
+        function loadNextQuestion() {
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>
